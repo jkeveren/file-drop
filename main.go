@@ -104,9 +104,9 @@ func (h Handler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	case http.MethodPut:
 		values := r.URL.Query()
 		fileName := values.Get("name")
-		fmt.Println("New file:", fileName)
+		fmt.Println("Started:", fileName)
 
-		tempFileName := "in-progress-" + fileName;
+		tempFileName := "!IN-PROGRESS-" + fileName
 		localFile, err := os.Create(tempFileName)
 		if err != nil {
 			serverError(w, err)
@@ -119,6 +119,7 @@ func (h Handler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 			n, err := r.Body.Read(b)
 			if err != nil && err != io.EOF {
 				serverError(w, err)
+				fmt.Println("Failed:", fileName)
 				err = os.Remove(tempFileName)
 				if err != nil {
 					fmt.Println("Unable to remove", tempFileName)
@@ -147,6 +148,7 @@ func (h Handler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 			serverError(w, err)
 			return
 		}
+		fmt.Println("Complete:", fileName)
 
 	default:
 		w.WriteHeader(http.StatusMethodNotAllowed)
